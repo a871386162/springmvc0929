@@ -1,0 +1,77 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>汽车信息编辑页面</title>
+    <link rel="stylesheet" href="css/bootstrap.min.css">
+</head>
+<body>
+<div class="container">
+    <h2 style="text-align: center">汽车信息编辑</h2>
+    <div class="card">
+        <div class="card-header "></div>
+        <div class="card-body">
+            <div class="form-group">
+                <label for="name">车名</label>
+                <input id="id" type="hidden" />
+                <input id="name" placeholder="车名" class="form-control">
+            </div>
+            <div class="form-group">
+                <label for="price">价格</label>
+                <input id="price" placeholder="价格" class="form-control">
+            </div>
+            <div class="form-group">
+                <label for="saleDate">销售日期</label>
+                <input id="saleDate" type="Date" placeholder="销售日期" class="form-control">
+            </div>
+
+            <button id="btnSave" class="btn btn-outline-primary">保存</button>
+
+        </div>
+    </div>
+</div>
+<script src="js/jquery-3.3.1.min.js"></script>
+<script src="js/car.js"></script>
+<script>
+    $(window).on("load",function () {
+        var id = localStorage.getItem("id");
+        if(id!=0||id!=null){
+            $.ajax({
+                type:"get",
+                url:CAR_URL+id,
+                success:function (data) {
+                    $("#id").val(data.id);
+                    $("#name").val(data.name);
+                    $("#price").val(data.price);
+                    $("#saleDate").val(data.saleDate);
+                }
+            })
+        }
+
+        $("#btnSave").click(function () {
+            alert(1);
+            var type=id>0?'put':"post";
+            let data={
+                "id":$("#id").val(),
+                "name":$("#name").val(),
+                "price":$("#price").val(),
+                "saleDate":$("#saleDate").val()
+            };
+            console.log(data);
+            $.ajax({
+                type:type,
+                url:CAR_URL,
+                contentType: 'application/json', // 服务器端接收的数据类型"
+                data:JSON.stringify(data),
+                success:function (data) {
+                    if(data==1){
+                        window.location.href="index.html";
+                    }
+                }
+            })
+        })
+    })
+
+</script>
+</body>
+</html>

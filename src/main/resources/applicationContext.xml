@@ -1,0 +1,57 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+       xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+       xmlns:context="http://www.springframework.org/schema/context"
+       xmlns:util="http://www.springframework.org/schema/util" xmlns:tx="http://www.springframework.org/schema/tx"
+       xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd http://www.springframework.org/schema/context http://www.springframework.org/schema/context/spring-context.xsd http://www.springframework.org/schema/util http://www.springframework.org/schema/util/spring-util.xsd http://www.springframework.org/schema/tx http://www.springframework.org/schema/tx/spring-tx.xsd">
+
+    <!--1.扫描的service，dao层 -->
+    <context:component-scan base-package="com.*.dao,com.*.service"/>
+    <!--2.开启注解功能 -->
+    <context:annotation-config />
+  <!--  <bean id="empMapper" class="com.newer.dao.EmpMapper"/>
+
+    <bean id="empService" class="com.newer.service.EmpService"/>-->
+
+    <!--3.加载jdbc.properties -->
+    <util:properties id="properties" location="classpath:jdbc.properties"/>
+
+
+    <!--4. dataSource 数据源 -->
+    <bean id="dataSource" class="com.mchange.v2.c3p0.ComboPooledDataSource">
+        <property name="jdbcUrl" value="#{properties[url]}"/>
+        <property name="driverClass" value="#{properties[driver]}"/>
+        <property name="user" value="#{properties[username]}"/>
+        <property name="password" value="#{properties[password]}"/>
+        <!-- 最小的连接数 -->
+        <property name="minPoolSize" value="2"/>
+        <!-- 最大连接数 -->
+        <property name="maxPoolSize" value="10"/>
+        <!--一开始使用的时候的连接数量 -->
+        <property name="initialPoolSize" value="2"/>
+        <!-- 最大时间 120秒内没有使用的连接给我关掉 -->
+        <property name="maxIdleTime" value="120"/>
+        <!-- 连接池中的连接耗尽的时候 c3p0 一次同时生成几个连接 -->
+        <property name="acquireIncrement" value="2"/>
+    </bean>
+    <!--5.配置sqlSessionFatory 实例-->
+    <bean class="org.mybatis.spring.SqlSessionFactoryBean">
+        <property name="dataSource" ref="dataSource"/>
+    </bean>
+
+    <!-- 6.扫描映射器接口  将映射器接口和数据库关联 -->
+    <bean class="org.mybatis.spring.mapper.MapperScannerConfigurer">
+      <property name="basePackage" value="com.*.dao"/>
+    </bean>
+
+    <!--      配置事务         -->
+    <!-- 1.数据源和事务配置 -->
+    <bean id="transactionManager" class="org.springframework.jdbc.datasource.DataSourceTransactionManager">
+     <property name="dataSource" ref="dataSource"/>
+    </bean>
+
+    <!--注意导入时再结尾为tx的路径包  -->
+    <!--2.开启事务的注解 -->
+    <tx:annotation-driven transaction-manager="transactionManager"/>
+
+</beans>

@@ -1,0 +1,126 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>基于SSM的Restfult风格编程</title>
+    <link rel="stylesheet" href="css/bootstrap.min.css">
+</head>
+<body>
+  <h2 style="text-align: center">基于SSM的Restfult风格编程</h2>
+  <div class="container">
+     <div class="form-control">
+        <div class="form-group">
+            <label for="name">车名：</label>
+            <input id="name" type="text" placeholder="车名模糊查询" class="form-control" />
+        </div>
+
+
+         <div class="form-group">
+             <label for="beginDate">销售日期：</label>
+             <input id="beginDate" type="date" placeholder="开始日期" class="form-control" />
+             <input id="endDate" type="date" placeholder="结束日期" class="form-control" />
+         </div>
+
+         <div class="form-group">
+             <button class="btn btn-outline-primary" onclick="loadQuery()">查询</button>
+             <button class="btn btn-outline-primary" onclick="findById(0)">新增</button>
+         </div>
+     </div>
+
+    <table class="table table-striped table-hover">
+        <thead>
+           <tr>
+               <td>编号</td>
+               <td>车名</td>
+               <td>价格</td>
+               <td>销售日期</td>
+               <td>操作</td>
+           </tr>
+        </thead>
+        <tfoot>
+            <tr>
+                <td>编号</td>
+                <td>车名</td>
+                <td>价格</td>
+                <td>销售日期</td>
+                <td>操作</td>
+            </tr>
+        </tfoot>
+        <tbody>
+        </tbody>
+    </table>
+  </div>
+
+  <script src="js/jquery-3.3.1.min.js"></script>
+  <script>
+
+      $(window).on("load",function () {
+          //查询
+          loadQuery();
+      })
+
+      //查询
+      function loadQuery() {
+
+          $.ajax({
+              url:"http://127.0.0.1:8086/api/car/",
+              type:"get",
+              data:{"name":$("#name").val(),
+                    "beginDate":$("#beginDate").val(),
+                    "endDate":$("#endDate").val(),
+                   },
+              dataType:"json",
+              success:function (data) {
+                  console.log(data);
+                  if(!data){ //判断诗句是否为空
+                      $("tbody").html("<tr><td colspan='5'>无数据</td></tr>")
+                  }else{
+                      var appendVal = '';
+                      $.each(data,function (index,car) {
+                         appendVal +=`
+                           <tr id="${car.id}">
+                                <td>${car.id}</td>
+                                <td>${car.name}</td>
+                                <td>${car.price}</td>
+                                <td>${car.saleDate}</td>
+                                <td>
+                                 <button class="btn btn-outline-danger" onclick="del(${car.id})">删除</button>
+                                 <button onclick="findById(${car.id})" class='btn btn-outline-info'>修改</button>
+                                 </td>
+                            </tr>
+                         `;
+                      })
+                      $("tbody").html(appendVal);
+
+
+                  }
+
+              }
+          })
+
+      }
+
+      //删除
+      function del(id) {
+          if(window.confirm("是否确认删除")){
+              $.ajax({
+                  url:"http://127.0.0.1:8086/api/car/"+id,
+                  type:"delete",
+                  success:function (data) {
+                      if(data==1){
+                          //loadQuery();
+                          $("#"+id).remove();
+                      }
+                  }
+              })
+          }
+      }
+
+      function findById(id) {
+          localStorage.setItem("id",id);
+          window.location.href="edit.html";
+      }
+
+  </script>
+</body>
+</html>
